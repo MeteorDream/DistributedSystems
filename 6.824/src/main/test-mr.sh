@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-
 #
 # map-reduce tests
 #
-
 # comment this out to run the tests without the Go race detector.
 RACE=-race
 
