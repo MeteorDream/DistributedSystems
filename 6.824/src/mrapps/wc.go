@@ -18,17 +18,33 @@ import "strconv"
 // and look only at the contents argument. The return value is a slice
 // of key/value pairs.
 //
-func Map(filename string, contents string) []mr.KeyValue {
-	// function to detect word separators.
-	ff := func(r rune) bool { return !unicode.IsLetter(r) }
+// func Map(filename string, contents string) []mr.KeyValue {
+//     // function to detect word separators.
+//     ff := func(r rune) bool { return !unicode.IsLetter(r) }
+//
+//     // split contents into an array of words.
+//     words := strings.FieldsFunc(contents, ff)
+//
+//     kva := []mr.KeyValue{}
+//     for _, w := range words {
+//         kv := mr.KeyValue{w, "1"}
+//         kva = append(kva, kv)
+//     }
+//     return kva
+// }
 
+func Map(filename string, contents string) []mr.KeyValue {
 	// split contents into an array of words.
-	words := strings.FieldsFunc(contents, ff)
+	words := strings.FieldsFunc(contents, func(r rune) bool { return !unicode.IsLetter(r) })
+
+	var countMap = make(map[string]int)
+	for _, w := range words {
+		countMap[w]++
+	}
 
 	kva := []mr.KeyValue{}
-	for _, w := range words {
-		kv := mr.KeyValue{w, "1"}
-		kva = append(kva, kv)
+	for k, w := range countMap {
+		kva = append(kva, mr.KeyValue{k, strconv.Itoa(w)})
 	}
 	return kva
 }
@@ -38,7 +54,18 @@ func Map(filename string, contents string) []mr.KeyValue {
 // map tasks, with a list of all the values created for that key by
 // any map task.
 //
+// func Reduce(key string, values []string) string {
+//     // return the number of occurrences of this word.
+//     return strconv.Itoa(len(values))
+// }
+
 func Reduce(key string, values []string) string {
 	// return the number of occurrences of this word.
-	return strconv.Itoa(len(values))
+	var cnt = 0
+	for _, v := range values {
+		if val, err := strconv.Atoi(v); err == nil {
+			cnt += val
+		}
+	}
+	return strconv.Itoa(cnt)
 }
